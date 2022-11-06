@@ -18,6 +18,8 @@ final class Alert
 {
     private const STRING_ATTRIBUTES = ['alias', 'description', 'source', 'user', 'note'];
 
+    private const ARRAY_ATTRIBUTES = ['tags'];
+
     public string $message;
 
     public ?string $alias = null;
@@ -29,6 +31,8 @@ final class Alert
     public ?string $user = null;
 
     public ?string $note = null;
+
+    public ?array $tags = null;
 
     public Priority $priority;
 
@@ -42,6 +46,14 @@ final class Alert
                 $this->{$attribute} = (string) $attributes[$attribute];
             }
         }
+
+        foreach (self::ARRAY_ATTRIBUTES as $attribute) {
+            if (array_key_exists($attribute, $attributes) && null !== $attributes[$attribute]) {
+                $this->{$attribute} = is_array($attributes[$attribute])
+                    ? $attributes[$attribute]
+                    : [$attributes[$attribute]];
+            }
+        }
     }
 
     public function toArray(): array
@@ -51,7 +63,7 @@ final class Alert
             'priority' => $this->priority->value(),
         ];
 
-        foreach (self::STRING_ATTRIBUTES as $attribute) {
+        foreach (array_merge(self::STRING_ATTRIBUTES, self::ARRAY_ATTRIBUTES) as $attribute) {
             if (null !== $this->{$attribute}) {
                 $result[$attribute] = $this->{$attribute};
             }
